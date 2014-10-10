@@ -1,0 +1,17 @@
+language: java
+
+env:
+  global:
+    - EnableNuGetPackageRestore=false
+
+services:
+  - redis-server 
+
+script: 
+  - sudo apt-get install python-software-properties -y
+  - sudo add-apt-repository ppa:v-kukol/mono-3.2 -y
+  - sudo apt-get update
+  - sudo apt-get install mono-devel nunit-console -y
+  - bundle install 
+  - rake install_packages
+  - rake test

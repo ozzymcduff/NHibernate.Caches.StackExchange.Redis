@@ -12,6 +12,7 @@ TestResults
 *.suo
 *.user
 *.sln.docstates
+*.userprefs
 
 # Build results
 [Dd]ebug/
@@ -94,6 +95,8 @@ ClientBin
 [Ss]tyle[Cc]op.*
 ~$*
 *.dbmdl
+*.swp
+
 Generated_Code #added for RIA/Silverlight projects
 
 # Backup & report files from converting an old project file to a newer

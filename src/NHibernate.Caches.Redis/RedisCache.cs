@@ -291,7 +291,7 @@ namespace NHibernate.Caches.Redis
         public virtual void Clear()
         {
             var client = _clientManager.GetDatabase();
-            var server = _clientManager.GetServer("localhost", 6379);
+            var server = _clientManager.GetServer("127.0.0.1", 6379);
             var keys = server.Keys(pattern: String.Concat(PrefixName, _regionPrefix, _region, ":*"));
             client.KeyDelete(keys.ToArray());
         }

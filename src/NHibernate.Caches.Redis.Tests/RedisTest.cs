@@ -5,7 +5,7 @@ namespace NHibernate.Caches.Redis.Tests
 {
     public class RedisTest : IDisposable
     {
-        protected const string ValidHost = "localhost:6379,allowAdmin=true,abortConnect=false";
+        protected const string ValidHost = "127.0.0.1:6379,allowAdmin=true,abortConnect=false";
         protected const string InvalidHost = "unknown-host:6666,abortConnect=false";
 
         protected ConnectionMultiplexer ClientManager { get; private set; }
@@ -20,7 +20,7 @@ namespace NHibernate.Caches.Redis.Tests
 
         protected void FlushDb()
         {
-            ClientManager.GetServer("localhost", 6379).FlushAllDatabases();
+            ClientManager.GetServer("127.0.0.1", 6379).FlushAllDatabases();
         }
 
         public void Dispose()
