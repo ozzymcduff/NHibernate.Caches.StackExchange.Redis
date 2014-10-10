@@ -28,14 +28,15 @@ Set the `IRedisClientsManager` (pooled, basic, etc) on the `RedisCacheProvider`
 
 ```csharp
 // Or use your IoC container to wire this up.
-RedisCacheProvider.ConnectionMultiplexer = ConnectionMultiplexer.Connect("localhost:6379");
+var connMultiplexer = ConnectionMultiplexer.Connect("localhost:6379")
+RedisCacheProvider.ConnectionMultiplexer = connMultiplexer;
 
 using (var sessionFactory = ...)
 {
     // ...
 }
 
-clientManager.Dispose();
+connMultiplexer.Dispose();
 ```
 
 ---
