@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +14,39 @@ namespace NHibernate.Caches.Redis
 {
     public class RedisCache : ICache
     {
+        private class ObjectSerializer
+        {
+            private readonly BinaryFormatter _bf = new BinaryFormatter();
+
+            public virtual byte[] Serialize(object value)
+            {
+                if (value == null)
+                    return null;
+                using (var memoryStream = new MemoryStream())
+                {
+                    memoryStream.Seek(0, 0);
+                    _bf.Serialize(memoryStream, value);
+                    memoryStream.Seek(0, 0);
+                    var buffer = new byte[(int)memoryStream.Length];
+                    memoryStream.Read(buffer, 0, (int)memoryStream.Length);
+                    return buffer;
+                }
+            }
+
+            public virtual object Deserialize(byte[] bytes)
+            {
+                if (bytes == null)
+                    return null;
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    memoryStream.Write(bytes, 0, bytes.Length);
+                    memoryStream.Seek(0, 0);
+                    return _bf.Deserialize(memoryStream);
+                }
+
+            }
+        }
         internal const string PrefixName = "nhib:";
         private readonly string _region;
         private readonly string _regionPrefix = "";
@@ -115,12 +150,11 @@ namespace NHibernate.Caches.Redis
         }
 
         public RedisCache(string regionName, ConnectionMultiplexer clientManager)
-            : this(regionName, new Dictionary<string, string>(), null, clientManager)
+            : this(regionName, new Dictionary<string, string>(), clientManager)
         {
-
         }
 
-        public RedisCache(string regionName, IDictionary<string, string> properties, RedisCacheElement element, ConnectionMultiplexer clientManager)
+        public RedisCache(string regionName, IDictionary<string, string> properties, ConnectionMultiplexer clientManager)
         {
             _serializer = new ObjectSerializer();
             if (clientManager == null) throw new ArgumentNullException("clientManager");

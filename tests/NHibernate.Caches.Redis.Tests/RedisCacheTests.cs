@@ -31,23 +31,6 @@ namespace NHibernate.Caches.Redis.Tests
         }
 
         [Fact]
-        public void Configure_region_expiration_from_config_element()
-        {
-            // Arrange
-            var configElement = new RedisCacheElement("region", TimeSpan.FromMinutes(99));
-            var props = new Dictionary<string, string>();
-            var cache = new RedisCache("region", props, configElement, this.ClientManager);
-
-            // Act
-            cache.Put(999, new Person("Foo", 10));
-
-            // Assert
-            var cacheKey = cache.KeyAsString(999);
-            var expiry = Redis.KeyTimeToLive(cacheKey);
-            Assert.NotNull(expiry);
-        }
-
-        [Fact]
         public void Get_should_deserialize_data()
         {
             // Arrange

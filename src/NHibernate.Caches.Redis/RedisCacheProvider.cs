@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using NHibernate.Cache;
-using System.Configuration;
 using StackExchange.Redis;
 
 namespace NHibernate.Caches.Redis
@@ -10,32 +9,32 @@ namespace NHibernate.Caches.Redis
     public class RedisCacheProvider : ICacheProvider
     {
         private static readonly IInternalLogger Log = LoggerProvider.LoggerFor(typeof(RedisCacheProvider));
-        private static ConnectionMultiplexer clientManagerStatic;
-        private static readonly RedisCacheProviderSection Config;
+        private static ConnectionMultiplexer _clientManagerStatic;
 
         static RedisCacheProvider()
         {
-            Config = ConfigurationManager.GetSection("nhibernateRedisCache") as RedisCacheProviderSection ??
-                     new RedisCacheProviderSection();
         }
 
-        public static void SetClientManager(ConnectionMultiplexer clientManager)
-        {           
-            if (clientManagerStatic != null)
-                throw new InvalidOperationException("The client manager can only be configured once.");
+        public static ConnectionMultiplexer ConnectionMultiplexer
+        {
+            set
+            {
+                if (_clientManagerStatic != null)
+                    throw new InvalidOperationException("The client manager can only be configured once.");
 
-            if (clientManager == null) throw new ArgumentNullException();
-            clientManagerStatic = clientManager;
+                if (value == null) throw new ArgumentNullException();
+                _clientManagerStatic = value;
+            }
         }
 
         internal static void InternalSetClientManager(ConnectionMultiplexer clientManager)
         {
-            clientManagerStatic = clientManager;
+            _clientManagerStatic = clientManager;
         }
 
         public ICache BuildCache(string regionName, IDictionary<string, string> properties)
         {
-            if (clientManagerStatic == null)
+            if (_clientManagerStatic == null)
             {
                 throw new InvalidOperationException(
                     "An 'IRedisClientsManager' must be configured with SetClientManager(). " + 
@@ -57,18 +56,7 @@ namespace NHibernate.Caches.Redis
                 Log.Debug("building cache with region: " + regionName + ", properties: " + sb);
             }
 
-            RedisCacheElement configElement = null;
-            if (!String.IsNullOrWhiteSpace(regionName))
-            {
-                configElement = Config.Caches[regionName];
-            }
-
-            return BuildCache(regionName, properties, configElement, clientManagerStatic);
-        }
-
-        protected virtual RedisCache BuildCache(string regionName, IDictionary<string, string> properties, RedisCacheElement configElement, ConnectionMultiplexer clientManager)
-        {
-            return new RedisCache(regionName, properties, configElement, clientManager);
+            return new RedisCache(regionName, properties, _clientManagerStatic);
         }
 
         public long NextTimestamp()
