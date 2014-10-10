@@ -1,31 +1,118 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using NHibernate.Cache;
-using NHibernate.Util;
-using System.Net.Sockets;
 using StackExchange.Redis;
 
 namespace NHibernate.Caches.Redis
 {
     public class RedisCache : ICache
     {
-        private const string CacheNamePrefix = "NHibernate-Cache:";
+        internal const string PrefixName = "nhib:";
+        private readonly string _region;
+        private readonly string _regionPrefix = "";
+        private static readonly IInternalLogger Log;
+        private readonly TimeSpan _expiryTimeSpan;
 
-        private static readonly IInternalLogger Log = LoggerProvider.LoggerFor(typeof(RedisCache));
+        static RedisCache()
+        {
+            Log = LoggerProvider.LoggerFor((typeof(RedisCache)));
+        }
 
-        private readonly Dictionary<object, string> _acquiredLocks = new Dictionary<object, string>();
-        private readonly ISerializer _serializer;
+        private readonly ObjectSerializer _serializer;
         private readonly ConnectionMultiplexer _clientManager;
-        private readonly int _expirySeconds;
-        private readonly TimeSpan _lockTimeout = TimeSpan.FromSeconds(30);
-
-        private const int DefaultExpiry = 300 /*5 minutes*/;
+        [ThreadStatic] private static HashAlgorithm _hasher;
+        [ThreadStatic] private static MD5 _md5;
 
         public string RegionName { get; private set; }
-        public RedisNamespace CacheNamespace { get; private set; }
         public int Timeout { get { return Timestamper.OneMs * 60000; } }
+
+        private static HashAlgorithm Hasher
+        {
+            get
+            {
+                if (_hasher == null)
+                {
+                    _hasher = HashAlgorithm.Create();
+                }
+                return _hasher;
+            }
+        }
+
+        private static MD5 Md5
+        {
+            get
+            {
+                if (_md5 == null)
+                {
+                    _md5 = MD5.Create();
+                }
+                return _md5;
+            }
+        }
+
+        /// <summary>
+        /// Turn the key obj into a string, preperably using human readable
+        /// string, and if the string is too long (>=250) it will be hashed
+        /// </summary>
+        public string KeyAsString(object key)
+        {
+            var fullKey = FullKeyAsString(key);
+            if (fullKey.Length >= 250) //max key size for memcache
+            {
+                return ComputeHash(fullKey, Hasher);
+            }
+            else
+            {
+                return fullKey;
+            }
+        }
+
+        /// <summary>
+        /// Turn the key object into a human readable string.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        private string FullKeyAsString(object key)
+        {
+            return String.Concat(PrefixName, _regionPrefix, _region, ":", key.ToString(), "@", key.GetHashCode());
+        }
+
+        /// <summary>
+        /// Compute the hash of the full key string using the given hash algorithm
+        /// </summary>
+        /// <param name="fullKeyString">The full key return by call FullKeyAsString</param>
+        /// <param name="hashAlgorithm">The hash algorithm used to hash the key</param>
+        /// <returns>The hashed key as a string</returns>
+        private static string ComputeHash(string fullKeyString, HashAlgorithm hashAlgorithm)
+        {
+            byte[] bytes = Encoding.ASCII.GetBytes(fullKeyString);
+            byte[] computedHash = hashAlgorithm.ComputeHash(bytes);
+            return Convert.ToBase64String(computedHash);
+        }
+
+        /// <summary>
+        /// Compute an alternate key hash; used as a check that the looked-up value is 
+        /// in fact what has been put there in the first place.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns>The alternate key hash (using the MD5 algorithm)</returns>
+        private string GetAlternateKeyHash(object key)
+        {
+            string fullKey = FullKeyAsString(key);
+            if (fullKey.Length >= 250)
+            {
+                return ComputeHash(fullKey, Md5);
+            }
+            else
+            {
+                return fullKey;
+            }
+        }
 
         public RedisCache(string regionName, ConnectionMultiplexer clientManager)
             : this(regionName, new Dictionary<string, string>(), null, clientManager)
@@ -36,288 +123,175 @@ namespace NHibernate.Caches.Redis
         public RedisCache(string regionName, IDictionary<string, string> properties, RedisCacheElement element, ConnectionMultiplexer clientManager)
         {
             _serializer = new ObjectSerializer();
-            _clientManager = clientManager.ThrowIfNull("clientManager");
-            RegionName = regionName.ThrowIfNull("regionName");
+            if (clientManager == null) throw new ArgumentNullException("clientManager");
+            _clientManager = clientManager;
+            RegionName = _region = regionName;
+            int expiry = 60 * 60;
+            _expiryTimeSpan = TimeSpan.FromSeconds(expiry);
 
-            _expirySeconds = element != null
-                ? (int)element.Expiration.TotalSeconds
-                : PropertiesHelper.GetInt32(Cfg.Environment.CacheDefaultExpiration, properties, DefaultExpiry);
-
-            Log.DebugFormat("using expiration : {0} seconds", _expirySeconds);
-
-            var regionPrefix = PropertiesHelper.GetString(Cfg.Environment.CacheRegionPrefix, properties, null);
-            Log.DebugFormat("using region prefix : {0}", regionPrefix);
-
-            var namespacePrefix = CacheNamePrefix + RegionName;
-            if (!String.IsNullOrWhiteSpace(regionPrefix))
+            if (properties != null)
             {
-                namespacePrefix = regionPrefix + ":" + namespacePrefix;
-            }
+                var expirationString = GetExpirationString(properties);
+                if (expirationString != null)
+                {
+                    expiry = Convert.ToInt32(expirationString);
+                    _expiryTimeSpan = TimeSpan.FromSeconds(expiry);
+                    if (Log.IsDebugEnabled)
+                    {
+                        Log.DebugFormat("using expiration of {0} seconds", expiry);
+                    }
+                }
 
-            CacheNamespace = new RedisNamespace(namespacePrefix);
-            SyncGeneration();
+                if (properties.ContainsKey("regionPrefix"))
+                {
+                    _regionPrefix = properties["regionPrefix"];
+
+                    if (Log.IsDebugEnabled)
+                    {
+                        Log.DebugFormat("new regionPrefix :{0}", _regionPrefix);
+                    }
+                }
+                else
+                {
+                    if (Log.IsDebugEnabled)
+                    {
+                        Log.Debug("no regionPrefix value given, using defaults");
+                    }
+                }
+            }
         }
+
+        private static string GetExpirationString(IDictionary<string, string> props)
+        {
+            string result;
+            if (!props.TryGetValue("expiration", out result))
+            {
+                props.TryGetValue(Cfg.Environment.CacheDefaultExpiration, out result);
+            }
+            return result;
+        }
+
 
         public long NextTimestamp()
         {
             return Timestamper.Next();
         }
 
-        protected void SyncGeneration()
-        {
-            try
-            {
-                if (CacheNamespace.GetGeneration() == -1)
-                {
-                    CacheNamespace.SetGeneration(FetchGeneration());
-                }
-            }
-            catch (Exception e)
-            {
-                Log.ErrorFormat("could not sync generation");
-
-                var evtArg = new RedisCacheExceptionEventArgs(e);
-                OnException(evtArg);
-                if (evtArg.Throw) { throw; }
-            }
-        }
-
-        private long FetchGeneration()
-        {
-            var client = _clientManager.GetDatabase();
-
-            var generationKey = CacheNamespace.GetGenerationKey();
-            var attemptedGeneration = client.StringGet(generationKey);
-
-            if (!attemptedGeneration.HasValue)
-            {
-                var generation = client.StringIncrement(generationKey);
-                Log.DebugFormat("creating new generation : {0}", generation);
-                return generation;
-            }
-
-            Log.DebugFormat("using existing generation : {0}", attemptedGeneration);
-            return Convert.ToInt64(attemptedGeneration);
-        }
-
         public virtual void Put(object key, object value)
         {
-            key.ThrowIfNull("key");
-            value.ThrowIfNull("value");
-
-            Log.DebugFormat("put in cache : {0}", key);
-
-            try
+            if (key == null)
             {
-                var data = _serializer.Serialize(value);
-
-                ExecuteEnsureGeneration(transaction =>
-                {
-                    var cacheKey = CacheNamespace.GlobalCacheKey(key);
-
-                    transaction.StringSetAsync(cacheKey, data, TimeSpan.FromSeconds(_expirySeconds));
-                    var globalKeysKey = CacheNamespace.GetGlobalKeysKey();
-
-                    transaction.SetAddAsync(globalKeysKey, cacheKey);
-                });
+                throw new ArgumentNullException("key", "null key not allowed");
             }
-            catch (Exception e)
+            if (value == null)
             {
-                Log.ErrorFormat("could not put in cache : {0}", key);
+                throw new ArgumentNullException("value", "null value not allowed");
+            }
 
-                var evtArg = new RedisCacheExceptionEventArgs(e);
-                OnException(evtArg);
-                if (evtArg.Throw) { throw; }
+            if (Log.IsDebugEnabled)
+            {
+                Log.DebugFormat("setting value for item {0}", key);
+            }
+
+            var client = _clientManager.GetDatabase();
+            
+            var cacheKey = KeyAsString(key);
+            var returnOk = client.StringSet(cacheKey,
+                _serializer.Serialize(new DictionaryEntry(GetAlternateKeyHash(key), value)), 
+                    _expiryTimeSpan);
+            if (!returnOk)
+            {
+                if (Log.IsWarnEnabled)
+                {
+                    Log.WarnFormat("could not save: {0} => {1}", key, value);
+                }
             }
         }
 
         public virtual object Get(object key)
         {
-            key.ThrowIfNull();
-
-            Log.DebugFormat("get from cache : {0}", key);
-
-            try
+            if (key == null)
             {
-                Task<RedisValue> dataResult = null;
-
-                ExecuteEnsureGeneration(transaction =>
-                {
-                    var cacheKey = CacheNamespace.GlobalCacheKey(key);
-                    dataResult = transaction.StringGetAsync(cacheKey);
-                });
-
-                byte[] data = null;
-
-                if (dataResult != null)
-                    data = dataResult.Result;
-
-                return _serializer.Deserialize(data);
-
+                throw new ArgumentNullException("key", "null key not allowed");
             }
-            catch (Exception e)
+
+            var client = _clientManager.GetDatabase();
+            var transaction = client.CreateTransaction();
+            var objectKey = KeyAsString(key);
+            var task = transaction.StringGetAsync(objectKey)
+                .ContinueWith(x=>ObserveExceptionT(x));
+            transaction.KeyExpireAsync(objectKey, _expiryTimeSpan)
+                .ContinueWith(ObserveException);
+            transaction.Execute();
+
+            if (!task.Result.HasValue)
             {
-                Log.ErrorFormat("coult not get from cache : {0}", key);
-
-                var evtArg = new RedisCacheExceptionEventArgs(e);
-                OnException(evtArg);
-                if (evtArg.Throw) { throw; }
-
                 return null;
             }
+
+            var de = (DictionaryEntry)_serializer.Deserialize(task.Result);
+
+            //we need to check here that the key that we stored is really the key that we got
+            //the reason is that for long keys, we hash the value, and this mean that we may get
+            //hash collisions. The chance is very low, but it is better to be safe
+            var checkKeyHash = GetAlternateKeyHash(key);
+            return checkKeyHash.Equals(de.Key) ? de.Value : null;
         }
 
         public virtual void Remove(object key)
         {
-            key.ThrowIfNull();
-
-            Log.DebugFormat("remove from cache : {0}", key);
-
-            try
+            if (key == null)
             {
-                ExecuteEnsureGeneration(transaction =>
-                {
-                    var cacheKey = CacheNamespace.GlobalCacheKey(key);
-
-                    transaction.KeyDeleteAsync(cacheKey);
-                });
+                throw new ArgumentNullException("key");
             }
-            catch (Exception e)
+
+            if (Log.IsDebugEnabled)
             {
-                Log.ErrorFormat("could not remove from cache : {0}", key);
-
-                var evtArg = new RedisCacheExceptionEventArgs(e);
-                OnException(evtArg);
-                if (evtArg.Throw) { throw; }
+                Log.DebugFormat("removing item {0}", key);
             }
+
+            var client = _clientManager.GetDatabase();
+            client.KeyDelete(KeyAsString(key)); 
         }
 
         public virtual void Clear()
         {
-            var generationKey = CacheNamespace.GetGenerationKey();
-            var globalKeysKey = CacheNamespace.GetGlobalKeysKey();
-
-            Log.DebugFormat("clear cache : {0}", generationKey);
-
-            try
-            {
-                var client = _clientManager.GetDatabase();
-                var transaction = client.CreateTransaction();
-
-                var generationIncrementResult = transaction.StringIncrementAsync(generationKey);
-
-                transaction.KeyDeleteAsync(globalKeysKey);
-
-                transaction.Execute();
-
-                CacheNamespace.SetGeneration(generationIncrementResult.Result);
-            }
-            catch (Exception e)
-            {
-                Log.ErrorFormat("could not clear cache : {0}", generationKey);
-
-                var evtArg = new RedisCacheExceptionEventArgs(e);
-                OnException(evtArg);
-                if (evtArg.Throw) { throw; }
-            }
+            var client = _clientManager.GetDatabase();
+            var server = _clientManager.GetServer("localhost", 6379);
+            var keys = server.Keys(pattern: String.Concat(PrefixName, _regionPrefix, _region, ":*"));
+            client.KeyDelete(keys.ToArray());
         }
 
         public virtual void Destroy()
         {
-            // No-op since Redis is distributed.
-            Log.DebugFormat("destroying cache : {0}", CacheNamespace.GetGenerationKey());
+            Clear();
         }
 
         public virtual void Lock(object key)
         {
-            Log.DebugFormat("acquiring cache lock : {0}", key);
-
-            try
-            {
-                var globalKey = CacheNamespace.GlobalKey(key, RedisNamespace.NumTagsForLockKey);
-
-                var client = _clientManager.GetDatabase();
-
-                ExecExtensions.RetryUntilTrue(() =>
-                {
-                    var wasSet = client.StringSet(globalKey, "lock " + DateTime.UtcNow.ToUnixTime(), when: When.NotExists);
-
-                    if (wasSet)
-                        _acquiredLocks[key] = globalKey;
-
-                    return wasSet;
-                }, _lockTimeout);
-            }
-            catch (Exception e)
-            {
-                Log.ErrorFormat("could not acquire cache lock : ", key);
-
-                var evtArg = new RedisCacheExceptionEventArgs(e);
-                OnException(evtArg);
-                if (evtArg.Throw) { throw; }
-            }
+            // do nothing
         }
 
         public virtual void Unlock(object key)
         {
-            string globalKey;
-            if (!_acquiredLocks.TryGetValue(key, out globalKey)) { return; }
-
-            Log.DebugFormat("releasing cache lock : {0}", key);
-
-            try
-            {
-                var client = _clientManager.GetDatabase();
-
-                client.KeyDelete(globalKey);
-            }
-            catch (Exception e)
-            {
-                Log.ErrorFormat("could not release cache lock : {0}", key);
-
-                var evtArg = new RedisCacheExceptionEventArgs(e);
-                OnException(evtArg);
-                if (evtArg.Throw) { throw; }
-            }
+            // do nothing
         }
 
-        private void ExecuteEnsureGeneration(Action<StackExchange.Redis.ITransaction> action)
+        private static void ObserveException(System.Threading.Tasks.Task x)
         {
-            var client = _clientManager.GetDatabase();
-
-            var executed = false;
-
-            while (!executed)
+            if (x.Exception != null)
             {
-                var generation = client.StringGet(CacheNamespace.GetGenerationKey());
-                var serverGeneration = Convert.ToInt64(generation);
-
-                CacheNamespace.SetGeneration(serverGeneration);
-
-                var transaction = client.CreateTransaction();
-
-                // The generation on the server may have been removed.
-                if (serverGeneration < CacheNamespace.GetGeneration())
-                {
-                    client.StringSetAsync(CacheNamespace.GetGenerationKey(), CacheNamespace.GetGeneration().ToString(CultureInfo.InvariantCulture));
-                }
-
-                transaction.AddCondition(Condition.StringEqual(CacheNamespace.GetGenerationKey(), CacheNamespace.GetGeneration()));
-
-                action(transaction);
-
-                executed = transaction.Execute();
+                Log.Error(x.Exception);
             }
         }
-
-        protected virtual void OnException(RedisCacheExceptionEventArgs e)
+        private static TRes ObserveExceptionT<TRes>(Task<TRes> x)
         {
-            var isSocketException = e.Exception is RedisConnectionException || e.Exception is SocketException || e.Exception.InnerException is SocketException;
-
-            if (!isSocketException)
+            if (x.Exception != null)
             {
-                e.Throw = true;
+                Log.Error(x.Exception);
             }
+            return x.Result;
         }
+
     }
 }

@@ -3,7 +3,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace NHibernate.Caches.Redis
 {
-    public class ObjectSerializer : ISerializer
+    public class ObjectSerializer 
     {
         protected readonly BinaryFormatter Bf = new BinaryFormatter();
 
@@ -11,21 +11,29 @@ namespace NHibernate.Caches.Redis
         {
             if (value == null)
                 return null;
-            var memoryStream = new MemoryStream();
-            memoryStream.Seek(0, 0);
-            Bf.Serialize(memoryStream, value);
-            return memoryStream.ToArray();
+            using (var memoryStream = new MemoryStream())
+            {
+                memoryStream.Seek(0, 0);
+                Bf.Serialize(memoryStream, value);
+                memoryStream.Seek(0, 0);
+                var buffer = new byte[(int)memoryStream.Length];
+                memoryStream.Read(buffer, 0, (int) memoryStream.Length);
+                return buffer;
+            }
         }
 
-        public virtual object Deserialize(byte[] someBytes)
+        public virtual object Deserialize(byte[] bytes)
         {
-            if (someBytes == null)
+            if (bytes == null)
                 return null;
-            var memoryStream = new MemoryStream();
-            memoryStream.Write(someBytes, 0, someBytes.Length);
-            memoryStream.Seek(0, 0);
-            var de = Bf.Deserialize(memoryStream);
-            return de;
+            
+            using (var memoryStream = new MemoryStream())
+            {
+                memoryStream.Write(bytes, 0, bytes.Length);
+                memoryStream.Seek(0, 0);
+                return Bf.Deserialize(memoryStream);
+            }
+            
         }
     }
 }

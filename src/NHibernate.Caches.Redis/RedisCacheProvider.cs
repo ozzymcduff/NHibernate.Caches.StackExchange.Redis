@@ -24,7 +24,8 @@ namespace NHibernate.Caches.Redis
             if (clientManagerStatic != null)
                 throw new InvalidOperationException("The client manager can only be configured once.");
 
-            clientManagerStatic = clientManager.ThrowIfNull();
+            if (clientManager == null) throw new ArgumentNullException();
+            clientManagerStatic = clientManager;
         }
 
         internal static void InternalSetClientManager(ConnectionMultiplexer clientManager)
