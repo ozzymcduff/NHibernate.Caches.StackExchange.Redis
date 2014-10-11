@@ -17,7 +17,7 @@ config.vm.provider "virtualbox" do |v|
   config.vm.provision :shell, :path => "vagrant/provisioning/install-ruby.sh", :args => "2.1.2 puppet"
   config.vm.provision :shell, :path => "vagrant/provisioning/install-puppet-module.sh"
   
-  config.vm.provision :puppet, :module_path => "vagrant/modules" do |puppet|
+  config.vm.provision :puppet do |puppet|
     puppet.manifests_path = "vagrant/manifests"
     puppet.manifest_file  = "default.pp"
   end
