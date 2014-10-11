@@ -109,3 +109,6 @@ UpgradeLog*.XML
 *.rdb
 
 App_Data # Sample database.
+
+# vagrant
+.vagrant
