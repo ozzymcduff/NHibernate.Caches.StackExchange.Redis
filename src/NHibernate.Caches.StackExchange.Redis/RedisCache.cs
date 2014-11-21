@@ -60,9 +60,11 @@ namespace NHibernate.Caches.StackExchange.Redis
 
         private readonly ObjectSerializer _serializer;
         private readonly ConnectionMultiplexer _clientManager;
-        [ThreadStatic] private static HashAlgorithm _hasher;
-        [ThreadStatic] private static MD5 _md5;
-        private RedisCacheConnectionSettings _connectionSettings;
+        [ThreadStatic]
+        private static HashAlgorithm _hasher;
+        [ThreadStatic]
+        private static MD5 _md5;
+        private RedisCacheConnection _connectionSettings;
 
         public string RegionName { get; private set; }
         public int Timeout { get { return Timestamper.OneMs * 60000; } }
@@ -150,19 +152,19 @@ namespace NHibernate.Caches.StackExchange.Redis
             }
         }
 
-        public RedisCache(string regionName, ConnectionMultiplexer clientManager, RedisCacheConnectionSettings connectionSettings)
+        public RedisCache(string regionName, ConnectionMultiplexer clientManager, RedisCacheConnection connectionSettings)
             : this(regionName, new Dictionary<string, string>(), clientManager, connectionSettings)
         {
         }
 
-        public RedisCache(string regionName, IDictionary<string, string> properties, ConnectionMultiplexer clientManager, RedisCacheConnectionSettings connectionSettings)
+        public RedisCache(string regionName, IDictionary<string, string> properties, ConnectionMultiplexer clientManager, RedisCacheConnection connectionSettings)
         {
             _serializer = new ObjectSerializer();
             _connectionSettings = connectionSettings;
             if (clientManager == null) throw new ArgumentNullException("clientManager");
             _clientManager = clientManager;
             RegionName = _region = regionName;
-            
+
             _expiryTimeSpan = new RedisTtlConfigurationFromHash(properties).GetExpiryTimeSpan();
 
             if (properties != null && properties.ContainsKey("regionPrefix"))
@@ -193,10 +195,10 @@ namespace NHibernate.Caches.StackExchange.Redis
             }
 
             var client = _clientManager.GetDatabase();
-            
+
             var cacheKey = KeyAsString(key);
             var returnOk = client.StringSet(cacheKey,
-                _serializer.Serialize(new DictionaryEntry(GetAlternateKeyHash(key), value)), 
+                _serializer.Serialize(new DictionaryEntry(GetAlternateKeyHash(key), value)),
                     _expiryTimeSpan);
             if (!returnOk)
             {
@@ -218,7 +220,7 @@ namespace NHibernate.Caches.StackExchange.Redis
             var transaction = client.CreateTransaction();
             var objectKey = KeyAsString(key);
             var task = transaction.StringGetAsync(objectKey)
-                .ContinueWith(x=>ObserveExceptionT(x));
+                .ContinueWith(x => ObserveExceptionT(x));
             transaction.KeyExpireAsync(objectKey, _expiryTimeSpan)
                 .ContinueWith(ObserveException);
             transaction.Execute();
@@ -250,7 +252,7 @@ namespace NHibernate.Caches.StackExchange.Redis
             }
 
             var client = _clientManager.GetDatabase();
-            client.KeyDelete(KeyAsString(key)); 
+            client.KeyDelete(KeyAsString(key));
         }
 
         public virtual void Clear()

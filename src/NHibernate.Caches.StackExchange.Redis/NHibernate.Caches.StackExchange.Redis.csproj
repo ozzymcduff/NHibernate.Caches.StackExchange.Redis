@@ -75,9 +75,11 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="CacheConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RedisCache.cs" />
-    <Compile Include="RedisCacheConnectionSettings.cs" />
+    <Compile Include="RedisCacheConfigSectionHandler.cs" />
+    <Compile Include="RedisCacheConnection.cs" />
     <Compile Include="RedisCacheProvider.cs" />
     <Compile Include="RedisTtlConfigurationFromHash.cs" />
   </ItemGroup>

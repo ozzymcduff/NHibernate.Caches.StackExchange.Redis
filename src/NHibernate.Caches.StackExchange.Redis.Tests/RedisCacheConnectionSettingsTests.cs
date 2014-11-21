@@ -12,7 +12,7 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
         [Test]
         public void Test() 
         {
-            var connstr = new RedisCacheConnectionSettings("localhost", 6379) { { "allowAdmin", "true" }, { "abortConnect", "false" } }.Render();
+            var connstr = new RedisCacheConnection("localhost", 6379) { { "allowAdmin", "true" }, { "abortConnect", "false" } }.Render();
             Assert.AreEqual("localhost:6379,allowAdmin=true,abortConnect=false", connstr);
         }
     }

@@ -14,7 +14,7 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
         public void Put_should_serialize_item_and_set_with_expiry()
         {
             // Arrange
-            var cache = GetRedisCacheWithRegion("region");
+            var cache = GetRedisCacheWithRegion("region_1");
 
             // Act
             cache.Put(999, new Person("Foo", 10));
@@ -34,7 +34,7 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
         public void Get_should_deserialize_data()
         {
             // Arrange
-            var cache = GetRedisCacheWithRegion("region");
+            var cache = GetRedisCacheWithRegion("region_2");
             cache.Put(999, new Person("Foo", 10));
 
             // Act
@@ -50,7 +50,7 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
         public void Get_should_return_null_if_not_exists()
         {
             // Arrange
-            var cache = GetRedisCacheWithRegion("region");
+            var cache = GetRedisCacheWithRegion("region_3");
 
             // Act
             var person = cache.Get(99999) as Person;
@@ -80,7 +80,7 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
         public void Remove_should_remove_from_cache()
         {
             // Arrange
-            var cache = GetRedisCacheWithRegion("region");
+            var cache = GetRedisCacheWithRegion("region_4");
             cache.Put(999, new Person("Foo", 10));
 
             // Act

@@ -5,12 +5,12 @@ using System.Text;
 
 namespace NHibernate.Caches.StackExchange.Redis
 {
-    public class RedisCacheConnectionSettings : IEnumerable<KeyValuePair<string, string>>
+    public class RedisCacheConnection : IEnumerable<KeyValuePair<string, string>>
     {
         public string Host { get; private set; }
         public int Port { get; private set; }
         public IDictionary<string, string> Properties { get; private set; }
-        public RedisCacheConnectionSettings(string host, int port)
+        public RedisCacheConnection(string host, int port)
         {
             Host = host;
             Port = port;
@@ -20,9 +20,9 @@ namespace NHibernate.Caches.StackExchange.Redis
         {
             Properties.Add(key, value);
         }
-        internal static RedisCacheConnectionSettings Default()
+        internal static RedisCacheConnection Default()
         {
-            return new RedisCacheConnectionSettings("127.0.0.1", 6379) { { "allowAdmin", "true" }, { "abortConnect", "false" } };
+            return new RedisCacheConnection("127.0.0.1", 6379) { { "allowAdmin", "true" }, { "abortConnect", "false" } };
         }
 
         public IEnumerator<KeyValuePair<string, string>> GetEnumerator()

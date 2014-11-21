@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using NHibernate.Cache;
 using StackExchange.Redis;
+using System.Configuration;
 
 namespace NHibernate.Caches.StackExchange.Redis
 {
@@ -10,16 +11,32 @@ namespace NHibernate.Caches.StackExchange.Redis
     {
         private static readonly IInternalLogger Log = LoggerProvider.LoggerFor(typeof(RedisCacheProvider));
         private static ConnectionMultiplexer _clientManagerStatic;
-        private static RedisCacheConnectionSettings _connectionSettings;
-        public static RedisCacheConnectionSettings ConnectionSettings { get { return _connectionSettings; } set { _connectionSettings = value; _clientManagerStatic = null; } }
+        private static RedisCacheConnection _connectionSettings;
+        public static RedisCacheConnection ConnectionSettings
+        {
+            get { return _connectionSettings; }
+            set { _connectionSettings = value; _clientManagerStatic = null; }
+        }
+        private static readonly Dictionary<string, ICache> caches;
+
+        static RedisCacheProvider()
+        {
+            caches = new Dictionary<string, ICache>();
+        }
 
         public ICache BuildCache(string regionName, IDictionary<string, string> properties)
         {
+            ICache result;
+            if (caches.TryGetValue(regionName, out result))
+            {
+                return result;
+            }
+
             if (_clientManagerStatic == null)
             {
                 if (ConnectionSettings == null)
                 {
-                    ConnectionSettings = RedisCacheConnectionSettings.Default();
+                    ConnectionSettings = RedisCacheConnection.Default();
                 }
                 _clientManagerStatic = ConnectionMultiplexer.Connect(ConnectionSettings.Render());
             }
@@ -36,7 +53,9 @@ namespace NHibernate.Caches.StackExchange.Redis
                 }
                 Log.Debug(String.Format("building cache with region: {0}, properties: \n{1}", regionName, sb));
             }
-            return new RedisCache(regionName, properties, _clientManagerStatic, ConnectionSettings);
+            result = new RedisCache(regionName, properties, _clientManagerStatic, ConnectionSettings);
+            caches.Add(regionName, result);
+            return result;
         }
 
         public long NextTimestamp()
