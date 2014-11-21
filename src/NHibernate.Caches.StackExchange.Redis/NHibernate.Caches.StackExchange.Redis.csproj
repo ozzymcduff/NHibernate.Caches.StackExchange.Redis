@@ -6,8 +6,8 @@
     <ProjectGuid>{1B50164C-DB00-4109-A0D4-E2868ABFEDAF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NHibernate.Caches.Redis</RootNamespace>
-    <AssemblyName>NHibernate.Caches.Redis</AssemblyName>
+    <RootNamespace>NHibernate.Caches.StackExchange.Redis</RootNamespace>
+    <AssemblyName>NHibernate.Caches.StackExchange.Redis</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -30,7 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\NHibernate.Caches.Redis.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\NHibernate.Caches.StackExchange.Redis.xml</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>

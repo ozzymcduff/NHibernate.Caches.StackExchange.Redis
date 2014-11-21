@@ -6,7 +6,7 @@ using NHibernate.Tool.hbm2ddl;
 using System.IO;
 using NUnit.Framework;
 using Fact=NUnit.Framework.TestAttribute;
-namespace NHibernate.Caches.Redis.Tests
+namespace NHibernate.Caches.StackExchange.Redis.Tests
 {
     [TestFixture]
     public class RedisCacheIntegrationTests : RedisTest

@@ -6,8 +6,8 @@
     <ProjectGuid>{A067C7D2-CF09-4F24-9848-5CE10DC48438}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NHibernate.Caches.Redis.Tests</RootNamespace>
-    <AssemblyName>NHibernate.Caches.Redis.Tests</AssemblyName>
+    <RootNamespace>NHibernate.Caches.StackExchange.Redis.Tests</RootNamespace>
+    <AssemblyName>NHibernate.Caches.StackExchange.Redis.Tests</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>

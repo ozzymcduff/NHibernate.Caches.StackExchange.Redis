@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using NHibernate.Cache;
 using StackExchange.Redis;
 
-namespace NHibernate.Caches.Redis
+namespace NHibernate.Caches.StackExchange.Redis
 {
     public class RedisCache : ICache
     {

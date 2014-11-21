@@ -5,10 +5,10 @@ using System.IO;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using NHibernate.Tool.hbm2ddl;
-using NHibernate.Caches.Redis.Sample.Mapping;
+using NHibernate.Caches.StackExchange.Redis.Sample.Mapping;
 using StackExchange.Redis;
 
-namespace NHibernate.Caches.Redis.Sample
+namespace NHibernate.Caches.StackExchange.Redis.Sample
 {
     public class MvcApplication : HttpApplication
     {

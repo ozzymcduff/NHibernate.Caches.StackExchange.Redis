@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace NHibernate.Caches.Redis.Sample.Models
+namespace NHibernate.Caches.StackExchange.Redis.Sample.Models
 {
     public class BlogPost
     {

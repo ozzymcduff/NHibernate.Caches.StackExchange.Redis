@@ -79,13 +79,13 @@ build :build do |msb|
   msb.target = :Rebuild
   msb.be_quiet
   msb.nologo
-  msb.sln =File.join('.', "src", "NHibernate.Caches.Redis.sln")
+  msb.sln =File.join('.', "src", "NHibernate.Caches.StackExchange.Redis.sln")
 end
 
 desc "test using nunit console"
 task :test => :build do |t|
-  dir = File.join('.',"src","NHibernate.Caches.Redis.Tests","bin","Debug")
-  nunit_exec(dir,"NHibernate.Caches.Redis.Tests")
+  dir = File.join('.',"src","NHibernate.Caches.StackExchange.Redis.Tests","bin","Debug")
+  nunit_exec(dir,"NHibernate.Caches.StackExchange.Redis.Tests")
 end
 
 desc "Install missing NuGet packages."

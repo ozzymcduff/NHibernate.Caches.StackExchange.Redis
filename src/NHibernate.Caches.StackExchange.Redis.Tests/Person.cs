@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NHibernate.Caches.Redis.Tests
+namespace NHibernate.Caches.StackExchange.Redis.Tests
 {
     [Serializable]
     public class Person

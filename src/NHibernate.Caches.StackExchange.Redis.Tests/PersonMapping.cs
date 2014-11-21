@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using FluentNHibernate.Mapping;
 
-namespace NHibernate.Caches.Redis.Tests
+namespace NHibernate.Caches.StackExchange.Redis.Tests
 {
     public class PersonMapping : ClassMap<Person>
     {

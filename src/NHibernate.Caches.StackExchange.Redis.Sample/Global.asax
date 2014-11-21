@@ -1,1 +1,1 @@
-﻿<%@ Application Codebehind="Global.asax.cs" Inherits="NHibernate.Caches.Redis.Sample.MvcApplication" Language="C#" %>
+﻿<%@ Application Codebehind="Global.asax.cs" Inherits="NHibernate.Caches.StackExchange.Redis.Sample.MvcApplication" Language="C#" %>

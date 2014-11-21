@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NHibernate.Caches.Redis.Sample")]
+[assembly: AssemblyTitle("NHibernate.Caches.StackExchange.Redis.Sample")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("NHibernate.Caches.Redis.Sample")]
+[assembly: AssemblyProduct("NHibernate.Caches.StackExchange.Redis.Sample")]
 [assembly: AssemblyCopyright("Copyright ©  2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -1,7 +1,7 @@
 ﻿using System;
 using StackExchange.Redis;
 
-namespace NHibernate.Caches.Redis.Tests
+namespace NHibernate.Caches.StackExchange.Redis.Tests
 {
     public class RedisTest : IDisposable
     {

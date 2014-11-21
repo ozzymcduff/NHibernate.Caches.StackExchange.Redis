@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using NHibernate.Caches.Redis.Sample.Models;
+using NHibernate.Caches.StackExchange.Redis.Sample.Models;
 
-namespace NHibernate.Caches.Redis.Sample.Controllers
+namespace NHibernate.Caches.StackExchange.Redis.Sample.Controllers
 {
     public class HomeController : Controller
     {
