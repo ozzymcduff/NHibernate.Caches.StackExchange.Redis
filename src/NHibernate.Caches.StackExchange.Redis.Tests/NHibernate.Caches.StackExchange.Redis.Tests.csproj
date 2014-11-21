@@ -94,6 +94,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RedisCacheConnectionSettingsTests.cs" />
     <Compile Include="RedisCacheIntegrationTests.cs" />
     <Compile Include="Person.cs" />
     <Compile Include="PersonMapping.cs" />

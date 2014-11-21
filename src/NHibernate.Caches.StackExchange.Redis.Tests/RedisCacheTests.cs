@@ -14,7 +14,7 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
         public void Put_should_serialize_item_and_set_with_expiry()
         {
             // Arrange
-            var cache = new RedisCache("region", this.ConnectionMultiplexer);
+            var cache = new RedisCache("region", this.connectionMultiplexer);
 
             // Act
             cache.Put(999, new Person("Foo", 10));
@@ -34,7 +34,7 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
         public void Get_should_deserialize_data()
         {
             // Arrange
-            var cache = new RedisCache("region", this.ConnectionMultiplexer);
+            var cache = new RedisCache("region", this.connectionMultiplexer);
             cache.Put(999, new Person("Foo", 10));
 
             // Act
@@ -50,7 +50,7 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
         public void Get_should_return_null_if_not_exists()
         {
             // Arrange
-            var cache = new RedisCache("region", this.ConnectionMultiplexer);
+            var cache = new RedisCache("region", this.connectionMultiplexer);
 
             // Act
             var person = cache.Get(99999) as Person;
@@ -64,8 +64,8 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
         {
             // Arrange
             const int key = 1;
-            var cache1 = new RedisCache("region_A", this.ConnectionMultiplexer);
-            var cache2 = new RedisCache("region_B", this.ConnectionMultiplexer);
+            var cache1 = new RedisCache("region_A", this.connectionMultiplexer);
+            var cache2 = new RedisCache("region_B", this.connectionMultiplexer);
 
             // Act
             cache1.Put(key, new Person("A", 1));
@@ -80,7 +80,7 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
         public void Remove_should_remove_from_cache()
         {
             // Arrange
-            var cache = new RedisCache("region", this.ConnectionMultiplexer);
+            var cache = new RedisCache("region", this.connectionMultiplexer);
             cache.Put(999, new Person("Foo", 10));
 
             // Act

@@ -160,51 +160,14 @@ namespace NHibernate.Caches.StackExchange.Redis
             if (clientManager == null) throw new ArgumentNullException("clientManager");
             _clientManager = clientManager;
             RegionName = _region = regionName;
-            int expiry = 60 * 60;
-            _expiryTimeSpan = TimeSpan.FromSeconds(expiry);
+            
+            _expiryTimeSpan = new RedisTtlConfigurationFromHash(properties).GetExpiryTimeSpan();
 
-            if (properties != null)
+            if (properties != null && properties.ContainsKey("regionPrefix"))
             {
-                var expirationString = GetExpirationString(properties);
-                if (expirationString != null)
-                {
-                    expiry = Convert.ToInt32(expirationString);
-                    _expiryTimeSpan = TimeSpan.FromSeconds(expiry);
-                    if (Log.IsDebugEnabled)
-                    {
-                        Log.DebugFormat("using expiration of {0} seconds", expiry);
-                    }
-                }
-
-                if (properties.ContainsKey("regionPrefix"))
-                {
-                    _regionPrefix = properties["regionPrefix"];
-
-                    if (Log.IsDebugEnabled)
-                    {
-                        Log.DebugFormat("new regionPrefix :{0}", _regionPrefix);
-                    }
-                }
-                else
-                {
-                    if (Log.IsDebugEnabled)
-                    {
-                        Log.Debug("no regionPrefix value given, using defaults");
-                    }
-                }
+                _regionPrefix = properties["regionPrefix"];
             }
         }
-
-        private static string GetExpirationString(IDictionary<string, string> props)
-        {
-            string result;
-            if (!props.TryGetValue("expiration", out result))
-            {
-                props.TryGetValue(Cfg.Environment.CacheDefaultExpiration, out result);
-            }
-            return result;
-        }
-
 
         public long NextTimestamp()
         {

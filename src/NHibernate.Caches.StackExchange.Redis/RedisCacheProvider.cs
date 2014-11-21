@@ -10,27 +10,18 @@ namespace NHibernate.Caches.StackExchange.Redis
     {
         private static readonly IInternalLogger Log = LoggerProvider.LoggerFor(typeof(RedisCacheProvider));
         private static ConnectionMultiplexer _clientManagerStatic;
-
-        public static ConnectionMultiplexer ConnectionMultiplexer
-        {
-            set
-            {
-                _clientManagerStatic = value;
-            }
-            get 
-            {
-                return _clientManagerStatic;
-            }
-        }
+        private static RedisCacheConnectionSettings _connectionSettings;
+        public static RedisCacheConnectionSettings ConnectionSettings { get { return _connectionSettings; } set { _connectionSettings = value; _clientManagerStatic = null; } }
 
         public ICache BuildCache(string regionName, IDictionary<string, string> properties)
         {
             if (_clientManagerStatic == null)
             {
-                throw new InvalidOperationException(
-                    "An 'IRedisClientsManager' must be configured with SetClientManager(). " + 
-                    "For example, call 'RedisCacheProvider(new PooledRedisClientManager())' " +
-                    "before creating the ISessionFactory.");
+                if (ConnectionSettings == null)
+                {
+                    ConnectionSettings = RedisCacheConnectionSettings.Default();
+                }
+                _clientManagerStatic = ConnectionMultiplexer.Connect(ConnectionSettings.Render());
             }
 
             if (Log.IsDebugEnabled)

@@ -5,28 +5,32 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
 {
     public class RedisTest : IDisposable
     {
-        protected string Host() { return "127.0.0.1"; }
-        protected string ValidHost() { return Host() + ":6379,allowAdmin=true,abortConnect=false"; }
-        protected string InvalidHost() { return "unknown-host:6666,abortConnect=false"; }
-
-        protected ConnectionMultiplexer ConnectionMultiplexer { get; private set; }
+        protected RedisCacheConnectionSettings ConnectionSettings
+        {
+            get
+            {
+                return new RedisCacheConnectionSettings("127.0.0.1", 6379) { { "allowAdmin", "true" }, { "abortConnect", "false" } };
+            }
+        }
+        protected ConnectionMultiplexer connectionMultiplexer;
         protected IDatabase Redis { get; private set; }
-        
+
         protected RedisTest()
         {
-            ConnectionMultiplexer = ConnectionMultiplexer.Connect(ValidHost());
-            Redis = ConnectionMultiplexer.GetDatabase();
+            RedisCacheProvider.ConnectionSettings = ConnectionSettings;
+            connectionMultiplexer = ConnectionMultiplexer.Connect(ConnectionSettings.Render());
+            Redis = connectionMultiplexer.GetDatabase();
             FlushDb();
         }
 
         protected void FlushDb()
         {
-            ConnectionMultiplexer.GetServer(Host(), 6379).FlushAllDatabases();
+            connectionMultiplexer.GetServer(ConnectionSettings.Host, ConnectionSettings.Port).FlushAllDatabases();
         }
 
         public void Dispose()
         {
-            ConnectionMultiplexer.Dispose();
+            connectionMultiplexer.Dispose();
         }
     }
 }
