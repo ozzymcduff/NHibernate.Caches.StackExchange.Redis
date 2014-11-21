@@ -11,25 +11,16 @@ namespace NHibernate.Caches.StackExchange.Redis
         private static readonly IInternalLogger Log = LoggerProvider.LoggerFor(typeof(RedisCacheProvider));
         private static ConnectionMultiplexer _clientManagerStatic;
 
-        static RedisCacheProvider()
-        {
-        }
-
         public static ConnectionMultiplexer ConnectionMultiplexer
         {
             set
             {
-                if (_clientManagerStatic != null)
-                    throw new InvalidOperationException("The client manager can only be configured once.");
-
-                if (value == null) throw new ArgumentNullException();
                 _clientManagerStatic = value;
             }
-        }
-
-        internal static void InternalSetClientManager(ConnectionMultiplexer clientManager)
-        {
-            _clientManagerStatic = clientManager;
+            get 
+            {
+                return _clientManagerStatic;
+            }
         }
 
         public ICache BuildCache(string regionName, IDictionary<string, string> properties)
