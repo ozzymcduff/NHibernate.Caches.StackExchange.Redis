@@ -29,15 +29,13 @@ namespace NHibernate.Caches.StackExchange.Redis
                 var sb = new StringBuilder();
                 foreach (var pair in properties)
                 {
-                    sb.Append("name=");
                     sb.Append(pair.Key);
-                    sb.Append("&value=");
+                    sb.Append(" = '");
                     sb.Append(pair.Value);
-                    sb.Append(";");
+                    sb.AppendLine("';");
                 }
-                Log.Debug("building cache with region: " + regionName + ", properties: " + sb);
+                Log.Debug(String.Format("building cache with region: {0}, properties: \n{1}", regionName, sb));
             }
-
             return new RedisCache(regionName, properties, _clientManagerStatic, ConnectionSettings);
         }
 
