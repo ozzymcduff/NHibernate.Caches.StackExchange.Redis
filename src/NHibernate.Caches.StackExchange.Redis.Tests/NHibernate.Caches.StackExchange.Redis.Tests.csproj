@@ -10,7 +10,7 @@
     <AssemblyName>NHibernate.Caches.Redis.Tests</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>false</RestorePackages>
+    <RestorePackages>true</RestorePackages>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>301bcb67</NuGetPackageImportStamp>
   </PropertyGroup>
@@ -127,9 +127,9 @@
   </Target>
   -->
   <ItemGroup>
-    <ProjectReference Include="..\NHibernate.Caches.Redis\NHibernate.Caches.Redis.csproj">
+    <ProjectReference Include="..\NHibernate.Caches.StackExchange.Redis\NHibernate.Caches.StackExchange.Redis.csproj">
       <Project>{1B50164C-DB00-4109-A0D4-E2868ABFEDAF}</Project>
-      <Name>NHibernate.Caches.Redis</Name>
+      <Name>NHibernate.Caches.StackExchange.Redis</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>
