@@ -62,6 +62,7 @@ namespace NHibernate.Caches.StackExchange.Redis
         private readonly ConnectionMultiplexer _clientManager;
         [ThreadStatic] private static HashAlgorithm _hasher;
         [ThreadStatic] private static MD5 _md5;
+        private RedisCacheConnectionSettings _connectionSettings;
 
         public string RegionName { get; private set; }
         public int Timeout { get { return Timestamper.OneMs * 60000; } }
@@ -149,14 +150,15 @@ namespace NHibernate.Caches.StackExchange.Redis
             }
         }
 
-        public RedisCache(string regionName, ConnectionMultiplexer clientManager)
-            : this(regionName, new Dictionary<string, string>(), clientManager)
+        public RedisCache(string regionName, ConnectionMultiplexer clientManager, RedisCacheConnectionSettings connectionSettings)
+            : this(regionName, new Dictionary<string, string>(), clientManager, connectionSettings)
         {
         }
 
-        public RedisCache(string regionName, IDictionary<string, string> properties, ConnectionMultiplexer clientManager)
+        public RedisCache(string regionName, IDictionary<string, string> properties, ConnectionMultiplexer clientManager, RedisCacheConnectionSettings connectionSettings)
         {
             _serializer = new ObjectSerializer();
+            _connectionSettings = connectionSettings;
             if (clientManager == null) throw new ArgumentNullException("clientManager");
             _clientManager = clientManager;
             RegionName = _region = regionName;
@@ -254,7 +256,7 @@ namespace NHibernate.Caches.StackExchange.Redis
         public virtual void Clear()
         {
             var client = _clientManager.GetDatabase();
-            var server = _clientManager.GetServer("127.0.0.1", 6379);
+            var server = _clientManager.GetServer(_connectionSettings.Host, _connectionSettings.Port);
             var keys = server.Keys(pattern: String.Concat(PrefixName, _regionPrefix, _region, ":*"));
             client.KeyDelete(keys.ToArray());
         }

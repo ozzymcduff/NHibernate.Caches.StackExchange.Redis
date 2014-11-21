@@ -12,7 +12,7 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
                 return new RedisCacheConnectionSettings("127.0.0.1", 6379) { { "allowAdmin", "true" }, { "abortConnect", "false" } };
             }
         }
-        protected ConnectionMultiplexer connectionMultiplexer;
+        private ConnectionMultiplexer connectionMultiplexer;
         protected IDatabase Redis { get; private set; }
 
         protected RedisTest()
@@ -21,6 +21,11 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
             connectionMultiplexer = ConnectionMultiplexer.Connect(ConnectionSettings.Render());
             Redis = connectionMultiplexer.GetDatabase();
             FlushDb();
+        }
+
+        public RedisCache GetRedisCacheWithRegion(string region) 
+        {
+            return new RedisCache("region", connectionMultiplexer, ConnectionSettings);
         }
 
         protected void FlushDb()

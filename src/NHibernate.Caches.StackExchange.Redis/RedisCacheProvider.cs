@@ -38,7 +38,7 @@ namespace NHibernate.Caches.StackExchange.Redis
                 Log.Debug("building cache with region: " + regionName + ", properties: " + sb);
             }
 
-            return new RedisCache(regionName, properties, _clientManagerStatic);
+            return new RedisCache(regionName, properties, _clientManagerStatic, ConnectionSettings);
         }
 
         public long NextTimestamp()
