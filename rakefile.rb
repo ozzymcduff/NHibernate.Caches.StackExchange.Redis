@@ -5,7 +5,7 @@ require_relative './src/.nuget/nuget'
 task :default => ['build']
 
 desc "build"
-build :build do |msb|
+build :build => [:install_packages] do |msb|
   msb.prop :configuration, :Debug
   msb.prop :platform, "Any CPU"
   msb.target = :Rebuild
