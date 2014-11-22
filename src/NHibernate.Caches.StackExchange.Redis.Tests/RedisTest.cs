@@ -1,6 +1,8 @@
 ﻿using System;
 using StackExchange.Redis;
 using System.Security;
+using NHibernate.Caches.StackExchange.Redis;
+
 namespace NHibernate.Caches.StackExchange.Redis.Tests
 {
     public class RedisTest : IDisposable
