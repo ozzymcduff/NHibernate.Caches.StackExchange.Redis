@@ -22,9 +22,15 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
         }
         private bool TryGetRedisPort(out int port)
         {
-            try
+			var env = Environment.GetEnvironmentVariable("REDIS_PORT");
+			if (string.IsNullOrEmpty (env)) 
+			{
+				port = -1;
+				return false;
+			}
+			try
             {
-                port = Int32.Parse(Environment.GetEnvironmentVariable("REDIS_PORT"));
+                port = Int32.Parse(env);
                 return true;
             }
             catch (SecurityException)
