@@ -1,4 +1,4 @@
-NHibernate.Caches.StackExchange.Redis
+NHibernate.Caches.StackExchange.Redis [![Build status](https://ci.appveyor.com/api/projects/status/d6rdani2sq4yt5wc/branch/master?svg=true)](https://ci.appveyor.com/project/wallymathieu/nhibernate-caches-stackexchange-redis/branch/master)
 =====================================
 
 This is a [Redis](http://redis.io/) based [ICacheProvider](http://www.nhforge.org/doc/nh/en/#configuration-optional-cacheprovider) 
