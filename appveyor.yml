@@ -3,3 +3,4 @@ install:
 before_build:
   - cd src
   - nuget restore
+  - cd ..
