@@ -1,2 +1,4 @@
 install:
   - choco install redis
+before_build:
+  - nuget restore
