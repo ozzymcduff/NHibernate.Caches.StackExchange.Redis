@@ -12,6 +12,11 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
             try
             {
                 addr = Environment.GetEnvironmentVariable("REDIS_ADDR");
+				if (string.IsNullOrEmpty(addr))
+				{
+					addr = null;
+					return false;
+				}
                 return true;
             }
             catch (SecurityException)
@@ -22,14 +27,14 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
         }
         private bool TryGetRedisPort(out int port)
         {
-			var env = Environment.GetEnvironmentVariable("REDIS_PORT");
-			if (string.IsNullOrEmpty (env)) 
-			{
-				port = -1;
-				return false;
-			}
 			try
             {
+				var env = Environment.GetEnvironmentVariable("REDIS_PORT");
+				if (string.IsNullOrEmpty (env)) 
+				{
+					port = -1;
+					return false;
+				}
                 port = Int32.Parse(env);
                 return true;
             }
