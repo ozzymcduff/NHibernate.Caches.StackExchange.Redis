@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
+# Visual Studio 2012
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{65D5F343-E913-4E44-AD77-C338437C9D68}"
@@ -14,8 +14,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHibernate.Caches.StackExchange.Redis", "NHibernate.Caches.StackExchange.Redis\NHibernate.Caches.StackExchange.Redis.csproj", "{1B50164C-DB00-4109-A0D4-E2868ABFEDAF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHibernate.Caches.StackExchange.Redis.Tests", "NHibernate.Caches.StackExchange.Redis.Tests\NHibernate.Caches.StackExchange.Redis.Tests.csproj", "{A067C7D2-CF09-4F24-9848-5CE10DC48438}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHibernate.Caches.StackExchange.Redis.Sample", "NHibernate.Caches.StackExchange.Redis.Sample\NHibernate.Caches.StackExchange.Redis.Sample.csproj", "{3BA51CF9-7DCC-4265-A043-F83284D1942A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,13 +29,13 @@ Global
 		{A067C7D2-CF09-4F24-9848-5CE10DC48438}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A067C7D2-CF09-4F24-9848-5CE10DC48438}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A067C7D2-CF09-4F24-9848-5CE10DC48438}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3BA51CF9-7DCC-4265-A043-F83284D1942A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3BA51CF9-7DCC-4265-A043-F83284D1942A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = NHibernate.Caches.StackExchange.Redis\NHibernate.Caches.StackExchange.Redis.csproj
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = NHibernate.Caches.Redis\NHibernate.Caches.StackExchange.Redis.csproj
 	EndGlobalSection
 EndGlobal
