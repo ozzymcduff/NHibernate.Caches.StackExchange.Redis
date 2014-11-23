@@ -7,43 +7,42 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
 {
     public class RedisTest : IDisposable
     {
-        private bool TryGetRedisAddr(out string addr)
+        private bool TryGetEnvironmentVariable(string name, out string value)
         {
             try
             {
-                addr = Environment.GetEnvironmentVariable("REDIS_ADDR");
-				if (string.IsNullOrEmpty(addr))
-				{
-					addr = null;
-					return false;
-				}
+                value = Environment.GetEnvironmentVariable(name);
+                if (string.IsNullOrEmpty(value))
+                {
+                    value = null;
+                    return false;
+                }
                 return true;
             }
             catch (SecurityException)
             {
-                addr = null;
+                value = null;
                 return false;
             }
         }
+
+        private bool TryGetRedisAddr(out string addr)
+        {
+            return TryGetEnvironmentVariable("REDIS_ADDR", out addr);
+        }
+
         private bool TryGetRedisPort(out int port)
         {
-			try
+            string value;
+            if (TryGetEnvironmentVariable("REDIS_PORT", out value))
             {
-				var env = Environment.GetEnvironmentVariable("REDIS_PORT");
-				if (string.IsNullOrEmpty (env)) 
-				{
-					port = -1;
-					return false;
-				}
-                port = Int32.Parse(env);
+                port = Int32.Parse(value);
                 return true;
             }
-            catch (SecurityException)
-            {
-                port = -1;
-                return false;
-            }
+            port = -1;
+            return false;
         }
+
         protected RedisCacheConnection ConnectionSettings
         {
             get
@@ -53,16 +52,18 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
                 return new RedisCacheConnection(
                     TryGetRedisAddr(out addr) ? addr : "127.0.0.1",
                     TryGetRedisPort(out port) ? port : 6379
-                    ) 
-                {
-                    { "allowAdmin", "true" }, 
-                    { "abortConnect", "false" },
-					{ "connectTimeout", "5000"},
-					{ "syncTimeout", "5000"}
-                };
+                )
+				{
+					{ "allowAdmin", "true" }, 
+					{ "abortConnect", "false" },
+					{ "connectTimeout", "5000" },
+					{ "syncTimeout", "5000" }
+				};
             }
         }
+
         private ConnectionMultiplexer _connectionMultiplexer;
+
         private ConnectionMultiplexer connectionMultiplexer
         {
             get
@@ -74,6 +75,7 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
                 return _connectionMultiplexer;
             }
         }
+
         protected IDatabase Redis { get { return connectionMultiplexer.GetDatabase(); } }
 
         protected RedisTest()
