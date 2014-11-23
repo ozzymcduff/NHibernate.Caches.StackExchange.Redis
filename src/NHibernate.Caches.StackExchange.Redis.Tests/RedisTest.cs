@@ -56,7 +56,9 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
                     ) 
                 {
                     { "allowAdmin", "true" }, 
-                    { "abortConnect", "false" } 
+                    { "abortConnect", "false" },
+					{ "connectTimeout", "5000"},
+					{ "syncTimeout", "5000"}
                 };
             }
         }

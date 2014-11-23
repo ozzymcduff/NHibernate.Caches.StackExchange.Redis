@@ -27,13 +27,12 @@ module NuGet
     end
   end
 
-  def self.nunit_path
-    cmds = Dir.glob(File.join(File.dirname(__FILE__),"..","packages","NUnit.Runners.*","tools","nunit-console.exe"))
+  def self.xunit_path
+    cmds = Dir.glob(File.join(File.dirname(__FILE__),"..","packages","xunit.runners.*","tools","xunit.console.clr4.exe"))
     if cmds.any?
         command = cmds.first
     else
-      # /Library/Frameworks/Mono.framework/Versions/${MONO_VERSION}/bin/nunit-console4
-      raise "Could not find nunit runner!"
+      raise "Could not find xunit runner!"
     end
   end
 

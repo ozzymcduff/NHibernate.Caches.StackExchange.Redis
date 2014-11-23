@@ -16,7 +16,7 @@ end
 
 desc "test using console"
 test_runner :test => [:build] do |runner|
-  runner.exe = NuGet::nunit_path
+  runner.exe = NuGet::xunit_path
   files = [File.join(File.dirname(__FILE__),"src","NHibernate.Caches.StackExchange.Redis.Tests","bin","Debug",
     "NHibernate.Caches.StackExchange.Redis.Tests.dll")]
   runner.files = files 

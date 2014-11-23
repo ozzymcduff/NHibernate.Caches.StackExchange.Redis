@@ -22,7 +22,12 @@ namespace NHibernate.Caches.StackExchange.Redis
         }
         internal static RedisCacheConnection Default()
         {
-            return new RedisCacheConnection("127.0.0.1", 6379) { { "allowAdmin", "true" }, { "abortConnect", "false" } };
+            return new RedisCacheConnection("127.0.0.1", 6379) 
+			{
+				{ "allowAdmin", "true" }, 
+				{ "abortConnect", "false" },
+				{ "connectTimeout", "5000"},
+			};
         }
 
         public IEnumerator<KeyValuePair<string, string>> GetEnumerator()

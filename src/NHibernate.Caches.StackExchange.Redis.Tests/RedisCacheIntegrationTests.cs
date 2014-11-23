@@ -4,11 +4,9 @@ using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using NHibernate.Tool.hbm2ddl;
 using System.IO;
-using NUnit.Framework;
-using Fact=NUnit.Framework.TestAttribute;
+using Xunit;
 namespace NHibernate.Caches.StackExchange.Redis.Tests
 {
-    [TestFixture]
     public class RedisCacheIntegrationTests : RedisTest
     {
         private static Configuration configuration;
@@ -51,8 +49,8 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
                 UsingSession(sf, session =>
                 {
                     session.Get<Person>(personId);
-                    Assert.AreEqual(1, sf.Statistics.SecondLevelCacheMissCount);
-                    Assert.AreEqual(1, sf.Statistics.SecondLevelCachePutCount);
+                    Assert.Equal(1, sf.Statistics.SecondLevelCacheMissCount);
+                    Assert.Equal(1, sf.Statistics.SecondLevelCachePutCount);
                 });
 
                 sf.Statistics.Clear();
@@ -60,9 +58,9 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
                 UsingSession(sf, session =>
                 {
                     session.Get<Person>(personId);
-                    Assert.AreEqual(1, sf.Statistics.SecondLevelCacheHitCount);
-                    Assert.AreEqual(0, sf.Statistics.SecondLevelCacheMissCount);
-                    Assert.AreEqual(0, sf.Statistics.SecondLevelCachePutCount);
+                    Assert.Equal(1, sf.Statistics.SecondLevelCacheHitCount);
+                    Assert.Equal(0, sf.Statistics.SecondLevelCacheMissCount);
+                    Assert.Equal(0, sf.Statistics.SecondLevelCachePutCount);
                 });
             }
         }

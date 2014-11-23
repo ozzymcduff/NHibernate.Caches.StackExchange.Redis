@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using StackExchange.Redis;
-using NUnit.Framework;
-using Fact = NUnit.Framework.TestAttribute;
-
+using Xunit;
 
 namespace NHibernate.Caches.StackExchange.Redis.Tests
 {
-    [TestFixture]
     public class RedisCacheTests : RedisTest
     {
         [Fact]
@@ -26,8 +23,8 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
 
             var person = cache.Get(999) as Person;
             Assert.NotNull(person);
-            Assert.AreEqual("Foo", person.Name);
-            Assert.AreEqual(10, person.Age);
+            Assert.Equal("Foo", person.Name);
+            Assert.Equal(10, person.Age);
         }
 
         [Fact]
@@ -42,8 +39,8 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
 
             // Assert
             Assert.NotNull(person);
-            Assert.AreEqual("Foo", person.Name);
-            Assert.AreEqual(10, person.Age);
+            Assert.Equal("Foo", person.Name);
+            Assert.Equal(10, person.Age);
         }
 
         [Fact]
@@ -72,8 +69,8 @@ namespace NHibernate.Caches.StackExchange.Redis.Tests
             cache2.Put(key, new Person("B", 1));
 
             // Assert
-            Assert.AreEqual("A", ((Person)cache1.Get(1)).Name);
-            Assert.AreEqual("B", ((Person)cache2.Get(1)).Name);
+            Assert.Equal("A", ((Person)cache1.Get(1)).Name);
+            Assert.Equal("B", ((Person)cache2.Get(1)).Name);
         }
 
         [Fact]
