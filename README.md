@@ -9,6 +9,8 @@ Installation
 
 1. Build/install from source: `msbuild .\build\build.proj` and then look
    inside the `bin` directory.
+2. git submodule add https://github.com/wallymathieu/NHibernate.Caches.StackExchange.Redis.git or fork and make a submodule
+3. Copy the relevant code
 
 Usage
 -----
