@@ -7,10 +7,10 @@ for [NHibernate](http://nhforge.org/) written in C# using [StackExchange.Redis](
 Installation
 ------------
 
-1. Build/install from source: `msbuild .\build\build.proj` and then look
-   inside the `bin` directory.
-2. git submodule add https://github.com/wallymathieu/NHibernate.Caches.StackExchange.Redis.git or fork and make a submodule
-3. Copy the relevant code
+1. git submodule add https://github.com/wallymathieu/NHibernate.Caches.StackExchange.Redis.git 
+2. Fork and make a submodule (you might want a different version of StackExchange.Redis)
+3. Copy the relevant code (it's MIT)
+4. Private nuget stream
 
 Usage
 -----
