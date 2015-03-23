@@ -7,10 +7,11 @@ for [NHibernate](http://nhforge.org/) written in C# using [StackExchange.Redis](
 Installation
 ------------
 
-1. git submodule add https://github.com/wallymathieu/NHibernate.Caches.StackExchange.Redis.git 
-2. Fork and make a submodule (you might want a different version of StackExchange.Redis)
-3. Copy the relevant code (it's MIT)
-4. Private nuget stream
+1. [NuGet](https://www.nuget.org/packages/NHibernate.Caches.StackExchange.Redis)
+2. git submodule add https://github.com/wallymathieu/NHibernate.Caches.StackExchange.Redis.git 
+3. Fork and make a submodule (you might want a different version of StackExchange.Redis)
+4. Copy the relevant code (it's MIT)
+5. Private nuget stream (if you are building using appveyor it's quite simple)
 
 Usage
 -----
