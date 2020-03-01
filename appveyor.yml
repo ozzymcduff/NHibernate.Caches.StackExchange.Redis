@@ -3,6 +3,8 @@ install:
   - choco install redis-64
 configuration: Release
 before_build:
+  - redis-server --service-install
+  - redis-server --service-start
   - dotnet restore .\src\NHibernate.Caches.StackExchange.Redis.sln
 build:
   project: .\src\NHibernate.Caches.StackExchange.Redis.sln
