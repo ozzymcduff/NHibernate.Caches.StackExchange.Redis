@@ -8,3 +8,9 @@ build:
   project: .\src\NHibernate.Caches.StackExchange.Redis.sln
   verbosity: minimal
   publish_nuget: false
+environment:
+  REDIS_ADDR: "localhost"
+  REDIS_PORT: 6379  
+branches:
+  only: 
+    - master
