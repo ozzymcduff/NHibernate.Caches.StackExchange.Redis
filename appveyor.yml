@@ -1,6 +1,10 @@
+image: Visual Studio 2019
 install:
   - choco install redis
+configuration: Release
 before_build:
-  - cd src
-  - nuget restore
-  - cd ..
+  - dotnet restore .\src\NHibernate.Caches.StackExchange.Redis.sln
+build:
+  project: .\src\NHibernate.Caches.StackExchange.Redis.sln
+  verbosity: minimal
+  publish_nuget: false
