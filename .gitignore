@@ -113,3 +113,4 @@ App_Data # Sample database.
 # vagrant
 .vagrant
 *.nupkg
+.ionide/
